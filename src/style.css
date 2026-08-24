@@ -373,6 +373,15 @@ input[type="number"] {
     min-width: 0;
 }
 
+/* 分段日期输入（年 / 月 / 日） */
+.date-segments {
+    min-width: 0;
+}
+
+.date-segment {
+    font-family: inherit;
+}
+
 .date-display-value {
     display: none;
 }

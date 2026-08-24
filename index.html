@@ -80,7 +80,7 @@
             <div class="flex items-center gap-3">
                 <h1 class="text-xl md:text-3xl font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-normal transition-colors flex items-center leading-none">
                     <span class="mr-2 text-2xl md:text-3xl leading-none">🌻</span>
-                    <span>VPS 剩余价值</span>
+                    <span>剩余价值计算</span>
                 </h1>
             </div>
             
@@ -166,16 +166,22 @@
 
                     <div class="flex flex-row gap-3 md:gap-6">
                         <div class="w-1/2 min-w-0 group">
-                            <label for="dueDate" class="text-[10px] md:text-xs text-slate-500 dark:text-zinc-500 uppercase font-bold mb-1 md:mb-2 flex items-center gap-1 group-focus-within:text-amber-500 transition-colors">
+                            <label for="dueYear" class="text-[10px] md:text-xs text-slate-500 dark:text-zinc-500 uppercase font-bold mb-1 md:mb-2 flex items-center gap-1 group-focus-within:text-amber-500 transition-colors">
                                 <svg class="field-icon icon-due-date w-3.5 h-3.5 shrink-0" viewBox="0 0 64 64" fill="currentColor" aria-hidden="true">
                                     <path d="M60,4H48c0-2.211-1.789-4-4-4s-4,1.789-4,4H24c0-2.211-1.789-4-4-4s-4,1.789-4,4H4C1.789,4,0,5.789,0,8v52c0,2.211,1.789,4,4,4h56c2.211,0,4-1.789,4-4V8C64,5.789,62.211,4,60,4z M8,12h8c0,2.211,1.789,4,4,4s4-1.789,4-4h16c0,2.211,1.789,4,4,4s4-1.789,4-4h8v8H8V12z"/>
                                 </svg>
                                 到期日期
                             </label>
                             <div class="relative date-input-wrapper">
-                                <input type="date" id="dueDate" class="date-native-input w-full h-10 md:h-12 pl-3 md:pl-5 pr-8 md:pr-12 rounded text-xs md:text-sm font-medium tabular-nums transition-all outline-none bg-white border border-slate-300 text-slate-800 group-focus-within:border-amber-500 dark:bg-[#1d1d22] dark:border-zinc-700 dark:text-zinc-300 dark:group-focus-within:border-zinc-500">
+                                <div class="date-segments flex items-center gap-0.5 h-10 md:h-12 pl-3 md:pl-5 pr-9 md:pr-12 rounded text-xs md:text-sm font-medium tabular-nums transition-all bg-white border border-slate-300 text-slate-800 group-focus-within:border-amber-500 dark:bg-[#1d1d22] dark:border-zinc-700 dark:text-zinc-300 dark:group-focus-within:border-zinc-500">
+                                    <input type="text" id="dueYear" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="年" aria-label="到期日期年" class="date-segment w-9 md:w-12 bg-transparent outline-none text-center placeholder:text-slate-400 dark:placeholder:text-zinc-600">
+                                    <span class="date-sep text-slate-300 dark:text-zinc-600 select-none" aria-hidden="true">/</span>
+                                    <input type="text" id="dueMonth" inputmode="numeric" autocomplete="off" maxlength="2" placeholder="月" aria-label="到期日期月" class="date-segment w-6 md:w-8 bg-transparent outline-none text-center placeholder:text-slate-400 dark:placeholder:text-zinc-600">
+                                    <span class="date-sep text-slate-300 dark:text-zinc-600 select-none" aria-hidden="true">/</span>
+                                    <input type="text" id="dueDay" inputmode="numeric" autocomplete="off" maxlength="2" placeholder="日" aria-label="到期日期日" class="date-segment w-6 md:w-8 bg-transparent outline-none text-center placeholder:text-slate-400 dark:placeholder:text-zinc-600">
+                                </div>
+                                <input type="date" id="dueDate" class="date-native-input" tabindex="-1" aria-hidden="true" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">
                                 <span class="date-display-value text-xs md:text-sm font-medium tabular-nums" aria-hidden="true"></span>
-                                <span class="date-input-ff-mask" aria-hidden="true"></span>
                                 <span class="date-input-icon absolute right-3 md:right-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-slate-500 dark:text-zinc-500 cursor-pointer" style="opacity:0.85" aria-hidden="true">
                                     <svg class="h-[15px] w-[15px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 2v4m8-4v4M3 10h18M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"></path>
@@ -184,16 +190,22 @@
                             </div>
                         </div>
                         <div class="w-1/2 min-w-0 group">
-                            <label for="tradeDate" class="text-[10px] md:text-xs text-slate-500 dark:text-zinc-500 uppercase font-bold mb-1 md:mb-2 flex items-center gap-1 group-focus-within:text-amber-500 transition-colors">
+                            <label for="tradeYear" class="text-[10px] md:text-xs text-slate-500 dark:text-zinc-500 uppercase font-bold mb-1 md:mb-2 flex items-center gap-1 group-focus-within:text-amber-500 transition-colors">
                                 <svg class="field-icon icon-trade-date w-3.5 h-3.5 shrink-0" viewBox="0 0 64 64" fill="currentColor" aria-hidden="true">
                                     <path d="M62.828,29.172l-28-28C34.078,0.422,33.062,0,32,0H4C1.789,0,0,1.789,0,4v28c0,1.062,0.422,2.078,1.172,2.828l28,28C29.953,63.609,30.977,64,32,64s2.047-0.391,2.828-1.172l28-28C64.391,33.266,64.391,30.734,62.828,29.172z M20,28.004c-4.418,0-8-3.582-8-8s3.582-8,8-8s8,3.582,8,8S24.418,28.004,20,28.004z"/>
                                 </svg>
                                 交易日期
                             </label>
                             <div class="relative date-input-wrapper">
-                                <input type="date" id="tradeDate" class="date-native-input w-full h-10 md:h-12 pl-3 md:pl-5 pr-8 md:pr-12 rounded text-xs md:text-sm font-medium tabular-nums transition-all outline-none bg-white border border-slate-300 text-slate-800 group-focus-within:border-amber-500 dark:bg-[#1d1d22] dark:border-zinc-700 dark:text-zinc-300 dark:group-focus-within:border-zinc-500">
+                                <div class="date-segments flex items-center gap-0.5 h-10 md:h-12 pl-3 md:pl-5 pr-9 md:pr-12 rounded text-xs md:text-sm font-medium tabular-nums transition-all bg-white border border-slate-300 text-slate-800 group-focus-within:border-amber-500 dark:bg-[#1d1d22] dark:border-zinc-700 dark:text-zinc-300 dark:group-focus-within:border-zinc-500">
+                                    <input type="text" id="tradeYear" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="年" aria-label="交易日期年" class="date-segment w-9 md:w-12 bg-transparent outline-none text-center placeholder:text-slate-400 dark:placeholder:text-zinc-600">
+                                    <span class="date-sep text-slate-300 dark:text-zinc-600 select-none" aria-hidden="true">/</span>
+                                    <input type="text" id="tradeMonth" inputmode="numeric" autocomplete="off" maxlength="2" placeholder="月" aria-label="交易日期月" class="date-segment w-6 md:w-8 bg-transparent outline-none text-center placeholder:text-slate-400 dark:placeholder:text-zinc-600">
+                                    <span class="date-sep text-slate-300 dark:text-zinc-600 select-none" aria-hidden="true">/</span>
+                                    <input type="text" id="tradeDay" inputmode="numeric" autocomplete="off" maxlength="2" placeholder="日" aria-label="交易日期日" class="date-segment w-6 md:w-8 bg-transparent outline-none text-center placeholder:text-slate-400 dark:placeholder:text-zinc-600">
+                                </div>
+                                <input type="date" id="tradeDate" class="date-native-input" tabindex="-1" aria-hidden="true" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">
                                 <span class="date-display-value text-xs md:text-sm font-medium tabular-nums" aria-hidden="true"></span>
-                                <span class="date-input-ff-mask" aria-hidden="true"></span>
                                 <span class="date-input-icon absolute right-3 md:right-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-slate-500 dark:text-zinc-500 cursor-pointer" style="opacity:0.85" aria-hidden="true">
                                     <svg class="h-[15px] w-[15px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 2v4m8-4v4M3 10h18M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"></path>

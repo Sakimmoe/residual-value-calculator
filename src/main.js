@@ -35,7 +35,13 @@ const els = {
     currency: document.getElementById('currency'),
     cycles: document.getElementsByName('cycle'),
     dueDate: document.getElementById('dueDate'),
+    dueYear: document.getElementById('dueYear'),
+    dueMonth: document.getElementById('dueMonth'),
+    dueDay: document.getElementById('dueDay'),
     tradeDate: document.getElementById('tradeDate'),
+    tradeYear: document.getElementById('tradeYear'),
+    tradeMonth: document.getElementById('tradeMonth'),
+    tradeDay: document.getElementById('tradeDay'),
     customRate: document.getElementById('customRate'),
     apiRateDisplay: document.getElementById('apiRateDisplay'),
     refreshBtn: document.getElementById('refreshRateBtn'),
@@ -66,8 +72,8 @@ window.addEventListener('DOMContentLoaded', () => {
         loadInputsFromCookie(); 
         initQuoteFields();
         initDates(); 
-        syncDateDisplay(els.dueDate);
-        syncDateDisplay(els.tradeDate);
+        syncDateSegments(els.dueDate, els.dueYear, els.dueMonth, els.dueDay);
+        syncDateSegments(els.tradeDate, els.tradeYear, els.tradeMonth, els.tradeDay);
         initRates(); 
         setupEventListeners();
         calculate(); 
@@ -100,6 +106,9 @@ function setupEventListeners() {
         calculate();
         saveInputsToCookie();
     }));
+
+    bindDateSegmentInputs(els.dueDate, els.dueYear, els.dueMonth, els.dueDay, debouncedSave);
+    bindDateSegmentInputs(els.tradeDate, els.tradeYear, els.tradeMonth, els.tradeDay, debouncedSave);
     
     els.cycles.forEach(radio => radio.addEventListener('change', () => {
         calculate();
@@ -135,43 +144,14 @@ function setupEventListeners() {
         });
     });
 
-    // Firefox：date input 改为 visibility:hidden，不接收点击 → 在 wrapper 上绑定点击来触发 showPicker()
-    // 非 Firefox：原生透明日历指示器在 webkit 上会自己响应点击，同时下面的 icon handler 作为后备
-    if (document.documentElement.classList.contains('is-firefox')) {
-        document.querySelectorAll('.date-input-wrapper').forEach((wrapper) => {
-            wrapper.addEventListener('click', () => {
-                const input = wrapper.querySelector('input[type="date"]');
-                if (!input) return;
-                try {
-                    if (typeof input.showPicker === 'function') {
-                        input.showPicker();
-                    } else {
-                        input.focus();
-                    }
-                } catch (err) {
-                    // ignore
-                }
-            });
+    // 日期分段输入：点击输入框或右侧日历图标时聚焦“年”输入框
+    document.querySelectorAll('.date-input-wrapper').forEach((wrapper) => {
+        wrapper.addEventListener('click', (e) => {
+            if (e.target.closest('input')) return;
+            const yearInput = wrapper.querySelector('.date-segment');
+            if (yearInput) yearInput.focus();
         });
-    } else {
-        // 非 Firefox：点击右侧自定义日历图标触发 picker
-        document.querySelectorAll('.date-input-wrapper .date-input-icon').forEach((icon) => {
-            icon.addEventListener('click', (e) => {
-                const input = icon.parentElement && icon.parentElement.querySelector('input[type="date"]');
-                if (!input) return;
-                e.preventDefault();
-                try {
-                    if (typeof input.showPicker === 'function') {
-                        input.showPicker();
-                    } else {
-                        input.focus();
-                    }
-                } catch (err) {
-                    input.focus();
-                }
-            });
-        });
-    }
+    });
 
     // 价格 / 汇率 输入校验：负数或非法时高亮红边
     [els.price, els.customRate].forEach(el => {
@@ -391,6 +371,86 @@ function syncDateDisplay(input) {
     display.textContent = formatDateForDisplay(input.value);
 }
 
+function getDateSegments(input) {
+    if (!input || !input.value) return { y: '', m: '', d: '' };
+    const parts = input.value.split('-');
+    return {
+        y: parts[0] || '',
+        m: parts[1] || '',
+        d: parts[2] || ''
+    };
+}
+
+function setDateFromSegments(input, y, m, d) {
+    input.value = (y.length === 4 && m.length === 2 && d.length === 2) ? `${y}-${m}-${d}` : '';
+}
+
+function syncDateSegments(input, yEl, mEl, dEl) {
+    const { y, m, d } = getDateSegments(input);
+    if (yEl) yEl.value = y;
+    if (mEl) mEl.value = m;
+    if (dEl) dEl.value = d;
+}
+
+function sanitizeDateSegment(el) {
+    if (!el) return;
+    const max = Number(el.maxLength) || 4;
+    el.value = el.value.replace(/\D/g, '').slice(0, max);
+}
+
+function normalizeDateSegments(nativeInput, yEl, mEl, dEl) {
+    if (mEl.value.length === 2 && parseInt(mEl.value, 10) > 12) mEl.value = '12';
+    if (dEl.value.length === 2 && parseInt(dEl.value, 10) > 31) dEl.value = '31';
+    if (yEl.value.length === 4 && mEl.value.length === 2 && dEl.value.length === 2) {
+        const lastDay = new Date(Number(yEl.value), Number(mEl.value), 0).getDate();
+        if (parseInt(dEl.value, 10) > lastDay) {
+            dEl.value = String(lastDay).padStart(2, '0');
+        }
+    }
+    setDateFromSegments(nativeInput, yEl.value, mEl.value, dEl.value);
+}
+
+function bindDateSegmentInputs(nativeInput, yEl, mEl, dEl, debouncedSave) {
+    const refresh = () => {
+        setDateFromSegments(nativeInput, yEl.value, mEl.value, dEl.value);
+        calculate();
+        if (debouncedSave) debouncedSave();
+    };
+
+    const onInput = (el, next) => {
+        sanitizeDateSegment(el);
+        if (next && el.value.length === Number(el.maxLength)) {
+            next.focus();
+            next.select();
+        }
+        refresh();
+    };
+
+    yEl.addEventListener('input', () => onInput(yEl, mEl));
+    mEl.addEventListener('input', () => onInput(mEl, dEl));
+    dEl.addEventListener('input', () => onInput(dEl, null));
+
+    // 当前段为空时按退格，回到上一段
+    [mEl, dEl].forEach((el, i) => {
+        el.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && el.value === '') {
+                e.preventDefault();
+                (i === 0 ? yEl : mEl).focus();
+            }
+        });
+    });
+
+    // 聚焦时全选，方便直接覆盖重输
+    [yEl, mEl, dEl].forEach(el => el.addEventListener('focus', () => el.select()));
+
+    // 失焦时校正非法日期（如 13 月、2 月 31 日）
+    [yEl, mEl, dEl].forEach(el => el.addEventListener('blur', () => {
+        normalizeDateSegments(nativeInput, yEl, mEl, dEl);
+        calculate();
+        if (debouncedSave) debouncedSave();
+    }));
+}
+
 function prepareDateInputsForExport(node) {
     const restoreTasks = [];
     const inputs = node.querySelectorAll('input[type="date"]');
@@ -398,6 +458,7 @@ function prepareDateInputsForExport(node) {
     inputs.forEach((input) => {
         const wrapper = input.parentElement;
         if (!wrapper) return;
+        const segments = wrapper.querySelector('.date-segments');
         const display = wrapper.querySelector('.date-display-value') || document.createElement('span');
         const hadDisplay = wrapper.contains(display);
         if (!hadDisplay) {
@@ -409,9 +470,11 @@ function prepareDateInputsForExport(node) {
         // visibility:hidden 而非 display:none：保留 input 在文档流中的占位高度，
         // 避免 wrapper 塌陷导致 position:absolute 的 display 层变为 0px 高度。
         input.style.visibility = 'hidden';
+        if (segments) segments.style.visibility = 'hidden';
 
         restoreTasks.push(() => {
             input.style.visibility = '';
+            if (segments) segments.style.visibility = '';
             display.classList.remove('date-display-export');
             if (!hadDisplay) display.remove();
         });
@@ -512,11 +575,11 @@ function saveInputsToCookie() {
         salePrice: els.salePriceInput.value,
         quoteLastEdited
     };
-    setCookie("vps_inputs", JSON.stringify(data), 0.5);
+    setCookie("vps_inputs_v2", JSON.stringify(data), 0.5);
 }
 
 function loadInputsFromCookie() {
-    const saved = getCookie("vps_inputs");
+    const saved = getCookie("vps_inputs_v2");
     if (saved) {
         try {
             const data = JSON.parse(saved);
@@ -658,31 +721,18 @@ function showToast(msg) {
     }, 2000);
 }
 
-function getBlackFriday(year) {
-    const novemberFirst = new Date(year, 10, 1);
-    const firstThursday = 1 + ((4 - novemberFirst.getDay() + 7) % 7);
-    const thanksgivingDay = firstThursday + 21;
-    return new Date(year, 10, thanksgivingDay + 1);
-}
-
-function getNextBlackFriday(date) {
-    const currentYearBlackFriday = getBlackFriday(date.getFullYear());
-    return date.getTime() < currentYearBlackFriday.getTime()
-        ? currentYearBlackFriday
-        : getBlackFriday(date.getFullYear() + 1);
-}
-
 function initDates() {
     const now = new Date();
     els.tradeDate.value = formatDate(now);
-    syncDateDisplay(els.tradeDate);
+    syncDateSegments(els.tradeDate, els.tradeYear, els.tradeMonth, els.tradeDay);
     if (els.dueDate.value) {
-        syncDateDisplay(els.dueDate);
+        syncDateSegments(els.dueDate, els.dueYear, els.dueMonth, els.dueDay);
         return;
     }
-    const targetDueDate = getNextBlackFriday(now);
-    els.dueDate.value = formatDate(targetDueDate);
-    syncDateDisplay(els.dueDate);
+    // 默认到期日期：今天时间的一年后
+    const oneYearLater = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+    els.dueDate.value = formatDate(oneYearLater);
+    syncDateSegments(els.dueDate, els.dueYear, els.dueMonth, els.dueDay);
 }
 
 function formatDate(date) {
