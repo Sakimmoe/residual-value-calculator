@@ -1,3 +1,5 @@
+# VPS 剩余价值计算器
+
 这是一个简单美观的 VPS 剩余价值计算器，支持多种货币、自定义汇率，并可以生成精美的分享图片。
 
 ![demo](./demo1.webp)
@@ -13,27 +15,12 @@
 
 ---
 
-
-
 ## 🚀 部署
 
-### Cloudflare Pages / Vercel / EdgeOne Pages
-
-本项目是纯静态网站，支持直接部署到任何静态托管平台。
+本项目是纯静态网站，支持直接部署到 Cloudflare Pages / Vercel / EdgeOne Pages 等静态托管平台。
 
 - **构建命令**: `npm run build`
 - **输出目录**: `dist`
-
-### Cloudflare Workers
-
-已配置 `wrangler.toml`，支持通过 Workers 部署静态资源：
-
-```bash
-npx wrangler deploy
-```
-#### 一键 Cloudflare 部署：
-
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/verkyer/vps-jsq)
 
 ## 🛠️ 开发与构建
 
