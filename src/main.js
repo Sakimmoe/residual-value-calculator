@@ -846,7 +846,7 @@ function copyResult() {
     }
 
     const cnyPrice = (parseFloat(price) * parseFloat(rate)).toFixed(2);
-    const md = `## 🐔 VPS 剩余价值
+    const md = `## 🌻剩余价值计算
 - 📅 交易日期：${tradeDate}
 - 💹 外币汇率：1 ${currency} ≈ ${rate} CNY
 - 💰 续费价格：${price} ${currency}/${cycleText}（约 ${cnyPrice} 元）
