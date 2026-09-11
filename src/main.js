@@ -1,6 +1,8 @@
-﻿import './style.css';
+import './style.css';
 
-// Firefox 检测：为 html 添加标识类，供 CSS 针对性处理原生控件差异
+// Firefox 检测：为 html 添加标识类。Firefox 的原生 date 控件即使被裁成 1px，
+// UA 阴影 DOM 里的日历图标仍会残留，因此需用 CSS 将它整体 display:none，
+// 日期输入统一由分段文本框（年/月/日）承担，与 Chromium 行为一致。
 if (typeof navigator !== 'undefined' && /firefox/i.test(navigator.userAgent)) {
     document.documentElement.classList.add('is-firefox');
 }
